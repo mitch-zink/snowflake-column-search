@@ -2,6 +2,7 @@ import pandas as pd
 import snowflake.connector
 import streamlit as st
 
+
 def main():
     st.set_page_config(
         page_title="Snowflake Column Search",
@@ -26,12 +27,8 @@ def main():
         exclude_databases = st.text_input(
             "Databases to exclude (comma-separated) 🔍", ""
         )
-        exclude_schemas = st.text_input(
-            "Schemas to exclude (comma-separated) 🔍", ""
-        )
-        exclude_tables = st.text_input(
-            "Tables to exclude (comma-separated) 🔍", ""
-        )
+        exclude_schemas = st.text_input("Schemas to exclude (comma-separated) 🔍", "")
+        exclude_tables = st.text_input("Tables to exclude (comma-separated) 🔍", "")
 
         generate_scripts = st.button("Run Search 🚀")
 
@@ -46,9 +43,7 @@ def main():
             st.error("Please fill in all required fields.")
             return
 
-        excluded_dbs = [
-            db.strip() for db in exclude_databases.split(",") if db.strip()
-        ]
+        excluded_dbs = [db.strip() for db in exclude_databases.split(",") if db.strip()]
         excluded_schemas = [
             schema.strip() for schema in exclude_schemas.split(",") if schema.strip()
         ]
@@ -67,13 +62,25 @@ def main():
 
             exclusion_clause = []
             if excluded_dbs:
-                exclusion_clause.append(" AND ".join([f"table_catalog != '{db}'" for db in excluded_dbs]))
+                exclusion_clause.append(
+                    " AND ".join([f"table_catalog != '{db}'" for db in excluded_dbs])
+                )
             if excluded_schemas:
-                exclusion_clause.append(" AND ".join([f"table_schema != '{schema}'" for schema in excluded_schemas]))
+                exclusion_clause.append(
+                    " AND ".join(
+                        [f"table_schema != '{schema}'" for schema in excluded_schemas]
+                    )
+                )
             if excluded_tables:
-                exclusion_clause.append(" AND ".join([f"table_name != '{table}'" for table in excluded_tables]))
+                exclusion_clause.append(
+                    " AND ".join(
+                        [f"table_name != '{table}'" for table in excluded_tables]
+                    )
+                )
 
-            exclusion_clause = " AND " + " AND ".join(exclusion_clause) if exclusion_clause else ""
+            exclusion_clause = (
+                " AND " + " AND ".join(exclusion_clause) if exclusion_clause else ""
+            )
 
             find_columns_query = f"""
             SELECT table_catalog, table_schema, table_name, column_name
@@ -136,6 +143,7 @@ def main():
                 cursor.close()
             if ctx is not None:
                 ctx.close()
+
 
 if __name__ == "__main__":
     main()
